@@ -55,13 +55,13 @@ export function recommendStyles(answers:StyleAnswers):{label:string;reason:strin
  const a=(i:number)=>answers[i]?.[0]??0;const fields=new Set<string>();
  for(const v of answers[5]||[])for(const f of [['image'],['sku','upc'],['price'],['pack','stock'],['description'],['description','brand']][v]||[])fields.add(f);
  const requested=layouts[a(4)]?.id||'balanced';
- const preferred=a(0)===6&&!['menu','cafe'].includes(requested)?'menu':requested==='wholesale'&&(a(6)===1||fields.has('description')&&a(2)===2)?'technical':a(9)===3&&['wholesale','balanced'].includes(requested)?'showcase':requested;
+ const preferred=requested==='wholesale'&&(a(6)===1||fields.has('description')&&a(2)===2)?'technical':a(9)===3&&['wholesale','balanced'].includes(requested)?'showcase':requested;
  const business=['wholesale','fashion','beauty','home','technical','mixed','restaurant'][a(0)];const audience=['shoppers','wholesale buyers','sales teams','professional buyers','mixed audiences'][a(1)];const volume=['a small collection','up to 100 products','a large collection','over 500 products','a changing range'][a(3)];
  const extended=answers.length===questions.length;
  const barcodeSource=extended?(['upc','sku','none'] as const)[a(10)]:fields.has('upc')?'upc':'none';
  if(extended){barcodeSource==='none'?fields.delete('upc'):fields.add('upc');a(11)===2?fields.delete('image'):fields.add('image');a(12)===2?fields.delete('description'):fields.add('description');a(16)===0?fields.add('tags'):fields.delete('tags');}
  const style:CatalogStyle={answers,...(extended?{barcodeSource,missingBarcode:(['omit','sku','block'] as const)[a(18)],imagePosition:(['above','beside','none'] as const)[a(11)],descriptionMode:(['full','brief','none'] as const)[a(12)],cover:a(13)===0,index:a(14)===0,sort:(['original','category','name'] as const)[a(15)],contacts:a(17)===0,inheritBrand:a(19)===0}:{}),layout:preferred,font:a(7)===5?([1,2,3].includes(a(0))?2:0):a(7),palette:a(8),format:a(9)===1?'a4':'letter',fields:[...fields]};
- return [{label:'Best match',reason:preferred!==requested?'Adjusted for your reading format or detailed content.':`Matches your ${business} catalog for ${audience}, with ${volume}.`,style},{label:'More visual',reason:'Larger images and fewer products on each page.',style:{...style,layout:a(0)===6?'cafe':preferred==='showcase'?'editorial':'showcase'}},{label:'More compact',reason:'A denser layout for browsing larger product ranges.',style:{...style,layout:a(0)===6?'menu':preferred==='wholesale'?'balanced':'wholesale'}}];
+ return [{label:'Best match',reason:preferred!==requested?'Adjusted for your reading format or detailed content.':`Matches your ${business} catalog for ${audience}, with ${volume}.`,style},{label:'More visual',reason:'Larger images and fewer products on each page.',style:{...style,layout:a(0)===1?'bridal-elegance':a(0)===2?'beauty-editorial':a(0)===6?'cafe':preferred==='showcase'?'editorial':'showcase'}},{label:'More compact',reason:'A denser layout for browsing larger product ranges.',style:{...style,layout:a(0)===1?'menswear-edit':a(0)===2?'care-collection':a(0)===6?'menu':preferred==='wholesale'?'balanced':'wholesale'}}];
 }
 
 /** Compatibility for catalogs saved during the reverted visual-editor release. */
@@ -71,3 +71,10 @@ export function compatibleCatalogStyle(style:any){
  const answers=Array.isArray(style.answers)?style.answers.map((a:any,i:number)=>Array.isArray(a)?a.map((n:number)=>n>=questions[i]?.[1].length?(i===0?5:i===4?1:i===8?1:0):n):a):style.answers;
  return {...style,layout:['menu','cafe','comparison'].includes(style.layout)?'balanced':style.layout,palette:style.palette>5?1:style.palette,answers,fields:Array.isArray(style.fields)?style.fields.filter((f:string)=>f!=='tags'):style.fields};
 }
+
+/** Stable layout indices are preserved in saved answers; display order is independent. */
+export function businessLayouts(business:number,purpose=0){
+ const groups=[purpose===3?['weekly-featured','weekend-deals','wholesale-range']:['wholesale-range','wholesale','weekly-featured'],['seasonal-fashion','minimal-collection','bold-fashion','warm-lookbook','bridal-elegance','menswear-edit'],['aqua-skincare','beauty-editorial','care-collection'],['editorial','showcase','mixed'],['technical','balanced','wholesale'],['balanced','showcase','mixed'],['menu','cafe']];
+ return groups[business]||groups[5];
+}
+export function surveySteps(answers:StyleAnswers,creating:boolean){return questions.map((_,i)=>i).filter(i=>!(i===18&&answers[10]?.[0]===2)&&!(i===19&&!creating));}
