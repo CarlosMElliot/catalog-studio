@@ -29,9 +29,9 @@ Open **Bulk images** above the product library or **Bulk product images** in the
 
 - **Upload & match** accepts multiple JPG/JPEG/PNG/WebP files or a ZIP. Use `8110100.jpg`, `8110100__Product Name.jpg`, or an exact product-name filename. Matching prioritizes item codes, preserves leading zeros, and normalizes case/punctuation for product names. No fuzzy image/name guesses are made.
 - Review the paginated preview. Search by item code or product name to correct a match. Uncheck images you do not want. Ambiguous and unmatched files require a manual selection or are skipped. Two checked images cannot target the same product. Existing images stay intact unless **Replace existing product images** is enabled.
-- Click **Apply images** to decode and normalize all eligible files before updating products. A decoding error prevents the batch from applying. Catalog autosave then persists the new images.
+- Click **Apply images** to decode and validate all eligible files before updating products. A decoding error prevents the batch from applying. Catalog autosave then persists the new images.
 - **Download images** exports selected, currently filtered, or all products with images in a ZIP. Files use item code + product name; `image-map.json` records each filename, original item code, and product name. Re-upload that ZIP to match by its mapping file.
-- Limits: 10 MB per image, 2,000 images and 150 MB expanded per upload batch; ZIP input up to 50 MB. Image downloads are limited to 150 MB; filter/select smaller groups when needed. Product photos remain one image per product. The app normalizes uploaded images to JPEG at up to 1,000 pixels. Downloads contain those saved images, not a higher-resolution original.
+- Limits: 10 MB per image, 2,000 images and 150 MB expanded per upload batch; ZIP input up to 50 MB. Image downloads are limited to 150 MB; filter/select smaller groups when needed. Product photos remain one image per product. New uploads preserve original image resolution and format. Previously reduced images need to be replaced with better originals; downloads cannot recover missing detail.
 
 ## Profile and user preferences
 
@@ -93,3 +93,8 @@ Do not commit personal workspace backups or secret keys. The bundled starter pro
 After clicking Download PDF, the export options are replaced by a separate progress popup. It shows the stage, percentage and completed pages, with no filters or redundant Generating button. Keep the tab open without refreshing: PDF generation runs in this browser, so leaving interrupts it and requires restarting the export. The app requests the browser's standard leave/refresh warning while work is active; browsers decide whether to display that warning.
 
 Large catalogs can take a few minutes because images and pages are processed individually, and speed depends on the device. Once complete, the popup shows Done and points to the browser downloads/save dialog. Errors offer Try again and Back to export options. Saved catalog data is not cleared by an export failure.
+
+### PDF quality and cancellation
+PDF pages render at 300 DPI; CODE128 barcodes are drawn as vector bars and text so they remain sharp when zoomed or printed. Photo quality still depends on the original upload. Larger originals consume more storage. High-resolution exports take longer and create larger files.
+
+The standalone progress dialog offers **Cancel export** until final download preparation. Cancellation stops after the current page finishes, discards the partial PDF and keeps your catalog unchanged. Restart from export options or Try again. Keep the window open and avoid refresh while exporting. Once the browser download handoff starts, cancellation is unavailable. No pause/resume is provided.

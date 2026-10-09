@@ -51,7 +51,7 @@ See [Admin and billing](ADMIN-AND-BILLING.md) for quota behavior and payment int
 | FR-02 | Data validation | Require item code and name; skip duplicate source codes; reject malformed prices and stock; show skipped-row reasons |
 | FR-03 | Incremental update | Case-insensitive item-code upsert; retain images, unmapped fields, and blank-valued existing fields; retain products absent from file |
 | FR-04 | Product management | Create, edit, delete, set active state; prevent duplicate item codes |
-| FR-05 | Product images | PNG/JPEG/WebP up to 10 MB; normalize to a maximum 1,000-pixel dimension and private uploaded JPEG reference |
+| FR-05 | Product images | PNG/JPEG/WebP up to 10 MB; validate decoding, preserve original resolution/format and private uploaded media reference |
 | FR-06 | Filtering | Text search across name/code/description/UPC/brand; category, active state, image presence, tags, in-stock toggle |
 | FR-07 | Product selection | Select individual products or all filtered records; optionally export only selection |
 | FR-08 | Branding | Custom logo or default Nova logo, accent color, contact details, title/subtitle; live cover preview |
@@ -65,7 +65,7 @@ See [Admin and billing](ADMIN-AND-BILLING.md) for quota behavior and payment int
 
 | FR-16 | Start over | Settings provides a catalog selector, optional branding retention, backup shortcut, and typed CLEAR confirmation; clears all products including filtered-out records, resets selection/filters, and autosaves an empty catalog without reloading starter data |
 
-| FR-17 | User profile | Upload/remove a normalized raster avatar; edit display name, company, contact email/phone, role, bio and workspace name; explicit Save/Discard; sidebar reflects saved identity |
+| FR-17 | User profile | Upload/remove a validated raster avatar; edit display name, company, contact email/phone, role, bio and workspace name; explicit Save/Discard; sidebar reflects saved identity |
 | FR-18 | Preferences | Default grid/list view, 24/48/96 records per page, startup page, PDF density and cover/index defaults, optional success toasts; errors remain visible; reset preferences retains identity |
 | FR-19 | Settings persistence | Separate IndexedDB settings key; safe normalization on load/restore; backups include settings; opt-in restoration with compatibility for older backups; catalog wipe preserves profile |
 
@@ -104,3 +104,5 @@ The hosted preview remains owner-private. Adding customer records does not chang
 - Profile settings remain device-local; cloud catalog writes use last-save-wins.
 - Browser/physical-scanner verification has not been completed.
 - Desktop packaging and automated arbitrary PDF extraction are not implemented.
+
+PDF quality: 300-DPI page rasterization with high-quality JPEG encoding; CODE128 barcodes are overlaid as PDF vector rectangles and text. Cooperative AbortController checkpoints discard cancelled output before saving; a running canvas render completes before cancellation is acknowledged.
