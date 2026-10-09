@@ -90,4 +90,6 @@ Do not commit personal workspace backups or secret keys. The bundled starter pro
 
 ## PDF generation progress
 
-The export dialog shows a progress bar, current stage and completed/total pages (including the cover and index). Progress advances when each page finishes; the final stage prepares the browser download. Export settings and the close button are disabled during generation to avoid interrupting the job. Errors stay inside the dialog with a Retry PDF export button. Completion stays visible until you close the dialog. “Download requested” means the PDF was handed to the browser; check its Downloads list or save dialog for the file.
+After clicking Download PDF, the export options are replaced by a separate progress popup. It shows the stage, percentage and completed pages, with no filters or redundant Generating button. Keep the tab open without refreshing: PDF generation runs in this browser, so leaving interrupts it and requires restarting the export. The app requests the browser's standard leave/refresh warning while work is active; browsers decide whether to display that warning.
+
+Large catalogs can take a few minutes because images and pages are processed individually, and speed depends on the device. Once complete, the popup shows Done and points to the browser downloads/save dialog. Errors offer Try again and Back to export options. Saved catalog data is not cleared by an export failure.

@@ -7,6 +7,6 @@ export default function PdfExportProgress({progress}:{progress:PdfProgress}){
   <progress max={100} value={progress.percent} aria-label="PDF generation" aria-valuetext={`${progress.percent} percent. ${progress.message}`}/>
   <p role={failed?'alert':'status'} aria-live="polite">{progress.message}</p>
   {progress.totalPages>0&&<small>{progress.completedPages} of {progress.totalPages} pages generated</small>}
-  <small>{finished?'Download requested. Check your browser downloads or save dialog.':failed?'Adjust the export options if needed, then try again.':'Keep this window open. Large catalogs can take several minutes.'}</small>
+  {finished?<p className="pdf-friendly-note">Your download has been requested. Check your browser’s downloads or save dialog.</p>:failed?<p className="pdf-friendly-note">You can try again or adjust your export options. Your saved catalog is still there.</p>:<div className="pdf-friendly-note"><p><strong>Please keep this window open and don’t refresh.</strong> Your PDF is being created in this browser. Closing or refreshing will stop it, and you’ll need to start the export again.</p><p>We’re adding your images and arranging each page. Catalogs with lots of products or photos can take a few minutes, depending on your device. Thanks for your patience!</p></div>}
  </section>;
 }
