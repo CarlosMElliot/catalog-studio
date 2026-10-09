@@ -8,6 +8,7 @@
 | Essential | $60 | 1 GB |
 | Professional | $80 | 2 GB |
 | Business | $160 | 10 GB |
+| Custom | Founder-assigned | Founder-assigned GB |
 
 The original request did not specify the $40 allowance; 500 MB is the chosen default. MB and GB are decimal. Prices are subscription list prices; no tax calculation, money collection or automatic renewal is implemented. The owner's complimentary Business workspace is excluded from customer counts and monthly plan value. All tiers include the existing catalog features. Storage is the differentiator.
 
@@ -58,3 +59,7 @@ There is deliberately no fake checkout or stored card form. Before charging cust
 `python tests/storage-quota.py`
 
 The SQLite test exercises the actual production reservation and downgrade SQL, including concurrent reservations, exact limits, overflow, account separation, duplicates, suspension and rejection of undersized plans. Browser interaction, payment-provider integration and production customer onboarding require further verification; payment collection is not implemented.
+
+## Custom business plans
+
+Choose Custom while creating or editing a customer. Enter image storage in decimal GB (0.01–1,000,000 GB, up to two decimals) and monthly USD price ($0–$1,000,000, up to two decimals). These are per-account settings; other customers are unchanged. D1 stores the exact byte allowance and integer monthly price in cents. Fixed plans always use server-defined values. Changing back to a fixed plan clears the custom price. Custom plans use the same atomic upload reservations and below-usage downgrade protection. The dashboard includes the assigned custom price in active monthly plan value; it is not collected revenue. Billing remains unconnected.

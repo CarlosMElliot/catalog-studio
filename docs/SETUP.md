@@ -28,11 +28,12 @@ Build once to produce the local Worker configuration:
 pnpm build
 ```
 
-On a **fresh local database only**, apply the two existing migrations in order:
+On a **fresh local database only**, apply the three existing migrations in order:
 
 ```sh
 node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js d1 execute DB --local --config dist/server/wrangler.json --persist-to .wrangler/state --file drizzle/0000_nebulous_snowbird.sql
 node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js d1 execute DB --local --config dist/server/wrangler.json --persist-to .wrangler/state --file drizzle/0001_tense_wolf_cub.sql
+node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js d1 execute DB --local --config dist/server/wrangler.json --persist-to .wrangler/state --file drizzle/0002_nostalgic_morgan_stark.sql
 pnpm dev
 ```
 

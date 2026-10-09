@@ -34,8 +34,13 @@ Customers have no admin navigation or admin client imports. `/admin` has a serve
 | Essential | $60 | 1 GB |
 | Professional | $80 | 2 GB |
 | Business | $160 | 10 GB |
+| Custom | Assigned per business | Founder-configured GB |
 
 500 MB is the assumed allowance for the $40 plan. Units are decimal. All tiers include the same catalog tools. **Billing is not connected**: no real charges, checkout or automatic renewals occur. The founder's complimentary workspace is excluded from customer monthly plan value.
+
+Custom plans let the founder set storage GB and monthly USD price per customer in **Admin → Create user / Edit account → Custom**. Existing usage must fit before lowering an allowance.
+
+Download the [Excel import template](https://nova-catalog-studio.notmethekingofmyownl.chatgpt.site/templates/catalog-import-template.xlsx), or find it in **Customer app → Import spreadsheet**. The blank Products sheet is ready for your data; Examples and Instructions explain the supported fields.
 
 ## Find the code
 

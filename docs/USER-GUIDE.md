@@ -2,6 +2,10 @@
 
 Open `/app` for these features. Administrative tools live separately at `/admin`.
 
+## Excel import template
+
+Choose **Download import template** in the sidebar or **Download Excel template** inside the importer. Fill the blank **Products** sheet and select it when importing. **Examples** contains fictional rows and **Instructions** explains each rule. Item Code and Item Name are required. Codes and UPCs use Text formatting to preserve leading zeros. Upload images separately, named by item code. The first 1,000 rows have prepared formats and a Yes/No Active dropdown; you can add more rows.
+
 ## Use it
 
 1. Choose Nova Trading or the separate Excel product list from the catalog selector.
