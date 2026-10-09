@@ -1,0 +1,2 @@
+export async function jsonRequest(url:string,init?:RequestInit){const r=await fetch(url,init);const data:any=await r.json();if(!r.ok)throw Error(data.error||'Request failed');return data;}
+export async function uploadImage(blob:Blob,name='Product image'){const r=await jsonRequest('/api/media',{method:'POST',headers:{'Content-Type':blob.type,'X-File-Name':encodeURIComponent(name)},body:blob});return r.url as string;}

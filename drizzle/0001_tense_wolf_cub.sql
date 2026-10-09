@@ -1,0 +1,1 @@
+CREATE INDEX `media_account_idx` ON `media` (`account_id`);

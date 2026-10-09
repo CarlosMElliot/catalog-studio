@@ -2,24 +2,35 @@
 
 ## Delivered architecture
 
+One repository and one hosted application contain two separate portals. This is route/module separation, not two independent deployed servers.
+
+| Boundary | Entry | Implementation | Access |
+| --- | --- | --- | --- |
+| Founder chooser | `/` | `app/page.tsx` | Founder sees both portals; other signed-in users redirect to `/app` |
+| Customer app | `/app` | `features/customer/components/` | Authenticated account; owns its catalogs/images |
+| Founder admin | `/admin` | `features/admin/components/` | Server-guarded by `app/admin/layout.tsx` |
+| Admin API | `/api/admin/*` | `app/api/admin/` | Each handler independently checks founder identity |
+| Customer API | `/api/account`, `/api/workspace`, `/api/media` | `app/api/` | Account-scoped server authorization |
+| Shared UI | `/plans` and plan displays | `features/shared/components/`, `components/ui/` | Contains no administrative mutation controls |
+
 ```mermaid
 flowchart TD
-  A[Excel or CSV file] --> B[SheetJS parser and column mapping]
-  B --> C[Validation and item-code upsert]
-  D[Manual product editor] --> C
-  C --> E[React catalog state]
-  E --> F[IndexedDB autosave]
-  F --> E
-  E --> G[Filters and selected products]
-  G --> H[Category and page planner]
-  H --> I[Cover, index, and product pages]
-  I --> J[html2pdf page rendering]
-  J --> K[Download PDF]
-  E --> L[Portable JSON backup with images]
-  L --> E
+  I["Trusted sign-in"] --> R["Server authorization"]
+  R --> F["Founder portal /admin"]
+  R --> C["Customer portal /app"]
+  F --> A["Admin API: founder guard"]
+  C --> U["Customer API: account guard"]
+  A --> D["D1 accounts and image reservations"]
+  U --> D
+  U --> O["R2 images and catalog snapshots"]
+  C --> P["Browser PDF and Excel tools"]
 ```
 
-The UI is a Next.js App Router-style client application served by the Vinext Cloudflare runtime. Business data is held locally. Starter assets are hosted with the application; runtime products are not sent to a server. React state drives views, IndexedDB saves complete catalog snapshots, and downloadable backups provide PC-folder portability. No background sync or multi-user collaboration is implemented.
+`lib/server/account.ts` owns authorization, D1/R2 access and request guards. `lib/auth/access-policy.ts` defines the fail-closed founder email match. Founder identity is server configuration, never a profile role or client checkbox. The customer client imports no admin dashboard modules and has no admin navigation. The founder uses `/` or bookmarks to access both portals.
+
+React/TypeScript uses Next App Router conventions on Vinext/Cloudflare. Catalog metadata is saved as account-scoped R2 JSON snapshots; uploaded images are private R2 objects; D1 records account membership, plan allowances and atomic image reservations. IndexedDB provides a recovery copy and account-scoped device preferences. Cloud snapshot writes are last-save-wins; collaborative conflict merging is not implemented.
+
+See [Admin and billing](ADMIN-AND-BILLING.md) for quota behavior and payment integration boundaries.
 
 ## Entities
 
@@ -40,13 +51,13 @@ The UI is a Next.js App Router-style client application served by the Vinext Clo
 | FR-02 | Data validation | Require item code and name; skip duplicate source codes; reject malformed prices and stock; show skipped-row reasons |
 | FR-03 | Incremental update | Case-insensitive item-code upsert; retain images, unmapped fields, and blank-valued existing fields; retain products absent from file |
 | FR-04 | Product management | Create, edit, delete, set active state; prevent duplicate item codes |
-| FR-05 | Product images | PNG/JPEG/WebP up to 10 MB; normalize to a maximum 1,000-pixel dimension and JPEG data URL |
+| FR-05 | Product images | PNG/JPEG/WebP up to 10 MB; normalize to a maximum 1,000-pixel dimension and private uploaded JPEG reference |
 | FR-06 | Filtering | Text search across name/code/description/UPC/brand; category, active state, image presence, tags, in-stock toggle |
 | FR-07 | Product selection | Select individual products or all filtered records; optionally export only selection |
 | FR-08 | Branding | Custom logo or default Nova logo, accent color, contact details, title/subtitle; live cover preview |
 | FR-09 | PDF export | Download Letter portrait PDF with optional cover, paginated category index, 9/16 product cards per page, footer numbers |
 | FR-10 | Field control | Show/hide images, codes, descriptions, packs, barcodes, prices, stock, and brands; name always visible |
-| FR-11 | Local persistence | IndexedDB autosave with loading/saving/success/failure status |
+| FR-11 | Account persistence | Cloud snapshot autosave, private image storage and IndexedDB recovery; loading/saving/success/failure status |
 | FR-12 | Catalog management | Create empty collection, duplicate, switch, rename, and delete; preserve at least one catalog |
 | FR-13 | Backup/restore | Download all collections with images in one JSON file; validate and restore as additional copies |
 | FR-14 | Source quick start | PDF starter with 1,410 records and Excel starter with 1,031 records; source-based logo and contacts |
@@ -61,7 +72,7 @@ The UI is a Next.js App Router-style client application served by the Vinext Clo
 | FR-20 | Bulk image upload | Multi-file/ZIP input, code-first then normalized exact name matching, paginated preview and manual reassignment, explicit replacement toggle, duplicate-target prevention, batch image validation before applying |
 | FR-21 | Bulk image download | All/filtered/selected scope, ZIP with code/name filenames and JSON mapping, image-less products skipped, mapping supports subsequent re-upload |
 
-Bulk image code is in `components/image-manager.tsx` and `lib/image-matching.ts`. ZIP work uses fflate in the browser. Files are read in memory; archive paths are never written to the filesystem. Upload limits bound per-file, batch, and expanded ZIP size. Ambiguous matching produces no automatic target. Product IDs identify manual assignments; item codes provide portable ZIP mappings.
+Bulk image code is in `features/customer/components/image-manager.tsx` and `lib/image-matching.ts`. ZIP work uses fflate in the browser. Files are read in memory; archive paths are never written to the filesystem. Upload limits bound per-file, batch, and expanded ZIP size. Ambiguous matching produces no automatic target. Product IDs identify manual assignments; item codes provide portable ZIP mappings.
 
 | FR-22 | App color themes | Seven palettes including dark mode; immediate application and automatic saving on selection, independent of unsaved profile edits; failed saves roll back; IndexedDB and backup persistence; older settings default to Sage; app-scoped tokens preserve PDF branding |
 
@@ -71,7 +82,7 @@ Bulk image code is in `components/image-manager.tsx` and `lib/image-matching.ts`
 
 Header detection searches the first 30 rows for Item Code, SKU, or Product Code. Mapping can be corrected manually. SheetJS formatted cell text preserves string identifiers and number formats such as leading zeroes when present in the workbook; leading zeroes already lost in an unformatted numeric spreadsheet cannot be recovered. Prices and stock accept dollar signs and grouping commas. List price uses USD presentation. No exchange-rate conversion or locale-specific decimal inference is implemented.
 
-Products missing from an import are retained. Empty cells do not clear existing fields; clear a value in the product editor. Duplicates within an incoming sheet keep the first valid record and report subsequent records. Embedded Excel photographs are not extracted; upload images in the product editor. Images are not matched by product name.
+Products missing from an import are retained. Empty cells do not clear existing fields; clear a value in the product editor. Duplicates within an incoming sheet keep the first valid record and report subsequent records. Embedded Excel photographs are not extracted; upload images in the product editor. Spreadsheet imports do not match images by product name; the separate bulk-image tool supports exact normalized name matching.
 
 ## Export rules
 
@@ -81,18 +92,15 @@ Each output page is rendered separately before adding it to the PDF document, re
 
 ## Privacy and resilience
 
-Uploaded workbooks and images are processed locally in the browser. The hosted site is initially owner-private. IndexedDB is scoped to the host and browser profile. It is not encrypted storage or a multi-user authorization layer. Catalog backup files contain product data and images. No secret keys belong in browser code. Rendering escapes user text before placing it into export HTML. Restored image sources are restricted to bundled paths or normalized raster data URLs.
+Excel parsing and PDF rendering remain browser-side. Uploaded images and catalog metadata are saved to the authenticated account. API authorization scopes reads, writes and deletes to that account; founder administration uses a separate server guard. Browser storage is never an authorization source. Uploaded images are limited to raster types. Restored embedded images are uploaded and validated before cloud snapshot save.
 
-## Optional cloud phase — not connected in this version
+The hosted preview remains owner-private. Adding customer records does not change Site sharing. The public GitHub repository contains source and approved samples, not runtime account data or credentials.
 
-A future cloud backend can replace the persistence adapter with authenticated document storage while leaving import, editor, filter, and export components intact. Supabase is one possible provider; no project, tables, policies, or credentials are configured by this application. Before implementing that phase, define ownership, sharing, image limits, and conflict behavior. Minimum work:
+## Current limitations
 
-1. Add account authentication and a user-owned catalog data model.
-2. Store image binaries in private object storage and reference them by immutable IDs.
-3. Enforce owner access at the database and object-storage layers.
-4. Add version numbers or updated-at checks for conflicting edits.
-5. Implement upload/download sync with retry and explicit local/cloud status.
-6. Provide a migration that imports existing downloaded backups.
-7. Test cross-account isolation, expired sessions, offline edits, and conflict recovery.
-
-PC-folder saving is currently handled by browser downloads and backup restore. A packaged Windows desktop version could use a file-backed adapter but is not part of this delivery.
+- Real billing is not connected; manual access status is not proof of payment.
+- Customer launch needs deliberate Site sharing or equivalent verified production authentication on another host.
+- Bare deployment of the trusted-header adapter outside the Sites gateway is not supported. Replace it with verified authentication before public exposure.
+- Profile settings remain device-local; cloud catalog writes use last-save-wins.
+- Browser/physical-scanner verification has not been completed.
+- Desktop packaging and automated arbitrary PDF extraction are not implemented.

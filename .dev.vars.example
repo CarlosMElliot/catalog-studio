@@ -1,0 +1,3 @@
+# Local loopback development only; matches the starter's mock sign-in identity.
+# On the real hosted Site, configure your verified founder email in runtime settings.
+CATALOG_ADMIN_EMAIL=seedy@sites.test

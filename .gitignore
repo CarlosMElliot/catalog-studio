@@ -63,3 +63,8 @@ next-env.d.ts
 # Materialized from source-assets by install/dev/build
 /public/products/
 /public/nova-logo.png
+
+# Server runtime configuration
+.dev.vars
+.dev.vars.*
+!.dev.vars.example

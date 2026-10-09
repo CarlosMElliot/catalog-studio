@@ -1,96 +1,78 @@
 # Catalog Studio
 
-A functional browser app for building branded, downloadable PDF product catalogs. Includes the user's Nova reference catalog, its extracted product images, and a separate Excel sample workspace.
+A product catalog platform with **two separate portals**: a customer application and a private founder dashboard. Both share one code repository and backend, while navigation, feature code and administrative authorization are separated.
 
-## Run on a PC
+## Open the application
 
-Requirements: Node.js 22.13+ and pnpm (version in package.json).
+| Portal | Live link | Who can access it |
+| --- | --- | --- |
+| Founder workspace chooser | [Open both workspaces](https://nova-catalog-studio.notmethekingofmyownl.chatgpt.site/) | Configured founder only; customers redirect to their app |
+| Customer application | [Open catalog app](https://nova-catalog-studio.notmethekingofmyownl.chatgpt.site/app) | Authenticated account; founder can use their own workspace too |
+| Founder administration | [Open admin dashboard](https://nova-catalog-studio.notmethekingofmyownl.chatgpt.site/admin) | Configured founder only, enforced on the server |
+| Pricing | [View plans](https://nova-catalog-studio.notmethekingofmyownl.chatgpt.site/plans) | Subject to hosted Site access |
 
-```sh
-pnpm install
-pnpm dev
-```
+The current preview is **owner-private**. A customer record does not automatically grant access to the hosted Site. GitHub contains the source; it does not host the running application or deploy commits automatically.
 
-Open the local URL printed by the development server. Use the same browser and URL to retain your saved workspace. The source uses Next.js App Router conventions, React, TypeScript, Tailwind CSS, shadcn's Button, Lucide icons, SheetJS, html2pdf.js, and JsBarcode. The hosted build runs with the supplied **Vinext / Cloudflare adapter**; this is not a desktop executable. No cloud account or database credentials are required.
+## What belongs where?
 
-## Use it
+| Customer application — `/app` | Founder administration — `/admin` |
+| --- | --- |
+| Create and manage product catalogs | Create and edit customer accounts |
+| Import Excel/CSV with field mapping | Assign monthly plans |
+| Add products, images and barcodes | Enable, trial, pause or suspend account writes |
+| Bulk upload/match/download images | View storage usage across accounts |
+| Filter products and export branded PDFs | Reject downgrades below current usage |
+| Manage own profile, themes and storage | Review plan value and billing connection status |
 
-1. Choose Nova Trading or the separate Excel product list from the catalog selector.
-2. Search, filter by category, tag, active status, image availability, or positive stock.
-3. Click a product to edit its code, description, brand, pack size, price, stock, tags, or image. Add products with **Add product**.
-4. Choose **Import Excel**, select a worksheet and header row, map columns, review additions/updates/skipped rows, and import. Existing codes update; new codes append. Matching is trimmed and case-insensitive. Blank imported cells preserve existing values. Re-imports preserve product images. Item codes and names are required. Duplicate incoming codes and invalid numeric values are reported and skipped.
-5. Edit **Brand & cover** to set the logo, contact details, cover title, subtitle, and color. The Nova reference logo can be restored at any time.
-6. Click **Export catalog**. Choose all filtered products or the selected subset, 16 or 9 cards per page, cover, quick reference, and visible fields. Names are always shown. Customer PDFs do not import or expose cost price.
-7. Download a workspace backup regularly. JSON backups embed uploaded and bundled images. Restore adds copies of catalogs rather than replacing current data.
-8. Create or duplicate catalogs in **Catalogs**. Each has independent branding and products.
+Customers have no admin navigation or admin client imports. `/admin` has a server-side founder guard; `/api/admin/*` independently authorizes every request. User-entered profile roles do not grant privileges.
 
-9. To start over, open **Settings**, choose the catalog, optionally keep branding, and select **Clear catalog & start over**. Type **CLEAR** in the confirmation. All products in that catalog are removed, even if hidden by filters. Other catalogs remain. The empty catalog autosaves and starter data does not reload. Download a backup before clearing if you need recovery.
+## Monthly plans
 
-## On-screen product barcodes
+| Plan | USD / month | Hard image storage limit |
+| --- | ---: | ---: |
+| Starter | $40 | 500 MB |
+| Essential | $60 | 1 GB |
+| Professional | $80 | 2 GB |
+| Business | $160 | 10 GB |
 
-Every product with a UPC / barcode value displays a generated CODE128 SVG barcode in grid and list views. It updates automatically after manual edits or mapped spreadsheet imports. Click the barcode to open an enlarged black-on-white scanning view. The product editor also shows a live preview while entering the value. Empty values show **Add UPC / barcode**, and unsupported values show an error instead of a fabricated barcode. Leading zeros remain intact. These encode the supplied value as CODE128, consistent with the PDF export; they do not automatically create or validate a UPC-A checksum. Actual screen scanning depends on scanner support, screen size, brightness, and viewing distance.
+500 MB is the assumed allowance for the $40 plan. Units are decimal. All tiers include the same catalog tools. **Billing is not connected**: no real charges, checkout or automatic renewals occur. The founder's complimentary workspace is excluded from customer monthly plan value.
 
-## Bulk product images
+## Find the code
 
-Open **Bulk images** above the product library or **Bulk product images** in the sidebar.
+| Path | Responsibility |
+| --- | --- |
+| `app/page.tsx` | Founder chooser; customer redirect |
+| `app/app/page.tsx` | Authenticated customer entry point |
+| `app/admin/layout.tsx` | Founder-only route boundary |
+| `app/admin/page.tsx` | Admin entry point |
+| `features/customer/components/` | Catalog editor, bulk images, barcodes, plan/storage screen |
+| `features/admin/components/` | Founder dashboard and customer management |
+| `features/shared/components/` | Shared plan presentation |
+| `components/ui/` | Reusable UI primitives |
+| `app/api/admin/` | Founder API endpoints |
+| `app/api/account/`, `app/api/workspace/`, `app/api/media/` | Account-scoped customer APIs |
+| `lib/server/` | Server authorization, database and object-storage helpers |
+| `lib/auth/` | Shared, testable access-policy logic |
+| `lib/catalog.ts` | Catalog models, import rules, cloud persistence and local recovery |
+| `lib/plans.ts` | Prices and enforced byte allowances |
+| `lib/pdf-export.ts` | PDF generation and page/index planning |
+| `db/`, `drizzle/` | D1 schema and committed migrations |
+| `tests/` | Catalog behavior, founder policy and storage quota checks |
+| `docs/` | Setup, user guide, architecture and billing specifications |
 
-- **Upload & match** accepts multiple JPG/JPEG/PNG/WebP files or a ZIP. Use `8110100.jpg`, `8110100__Product Name.jpg`, or an exact product-name filename. Matching prioritizes item codes, preserves leading zeros, and normalizes case/punctuation for product names. No fuzzy image/name guesses are made.
-- Review the paginated preview. Search by item code or product name to correct a match. Uncheck images you do not want. Ambiguous and unmatched files require a manual selection or are skipped. Two checked images cannot target the same product. Existing images stay intact unless **Replace existing product images** is enabled.
-- Click **Apply images** to decode and normalize all eligible files before updating products. A decoding error prevents the batch from applying. Catalog autosave then persists the new images.
-- **Download images** exports selected, currently filtered, or all products with images in a ZIP. Files use item code + product name; `image-map.json` records each filename, original item code, and product name. Re-upload that ZIP to match by its mapping file.
-- Limits: 10 MB per image, 2,000 images and 150 MB expanded per upload batch; ZIP input up to 50 MB. Image downloads are limited to 150 MB; filter/select smaller groups when needed. Product photos remain one image per product. The app normalizes uploaded images to JPEG at up to 1,000 pixels. Downloads contain those saved images, not a higher-resolution original.
+## Start here
 
-## Profile and user preferences
+1. **Use either portal:** open the links above with the founder account.
+2. **Run or deploy the source:** follow [Setup and deployment](docs/SETUP.md).
+3. **Work on code:** read [Code map](docs/CODE-MAP.md) and [AGENTS.md](AGENTS.md).
+4. **Learn customer features:** read [Customer guide](docs/USER-GUIDE.md).
+5. **Manage users/plans:** read [Admin and billing specifications](docs/ADMIN-AND-BILLING.md).
+6. **Understand the design:** read [Architecture and functional requirements](docs/ARCHITECTURE.md).
 
-Open **Settings** or click your profile at the bottom of the sidebar. Upload/remove a profile picture, set your display name, company, job title, contact email, phone, workspace name, and short bio. Click **Save settings** to apply; **Discard changes** restores the saved version. The sidebar shows your picture and name. Profile/contact fields do not change catalog branding or your sign-in account.
+## Stack and current state
 
-Under **App appearance**, select Original Sage, Navy & Teal, Charcoal & Amber, Indigo & Slate, Burgundy & Cream, Ocean Blue, or the Midnight & Mint dark theme. Clicking a palette immediately applies it throughout the app and saves it as your default for future visits. No Save button is needed for colors. Other unsaved profile edits stay separate; **Discard changes** does not undo a successfully saved theme. A failed theme save shows an error and restores the previous theme. The theme travels with profile backups, while product photos retain white backgrounds and catalog branding/PDF colors remain independent.
+React, TypeScript, Next.js App Router conventions, Tailwind, shadcn components, Lucide, SheetJS, JsBarcode and html2pdf.js, served through Vinext/Cloudflare. D1 stores accounts and image reservations; R2 stores private images and catalog snapshots. IndexedDB holds device preferences and a recovery copy.
 
-Choose a default grid/list view, 24/48/96 products per screen, startup page, default 9/16-card PDF layout, cover/index defaults, and success notifications. Errors stay visible. **Reset preferences** resets preference fields while retaining profile details, then Save applies the changes. Settings are kept in IndexedDB separately from catalogs, so clearing a catalog preserves your profile. New JSON backups include settings; restoring a backup offers a separate confirmation to apply its profile/preferences. Older backups remain supported.
+The GitHub source distribution reconstructs the 1,408 bundled product images and logo from checksum-verified `source-assets/images-*.json` using `scripts/restore-assets.mjs` during install/dev/build. The hosted checkout can retain those materialized assets directly. Approved Nova and Excel sample data are included; production account records and secrets are not.
 
-## Persistence and recovery
-
-Catalogs autosave to IndexedDB after changes, with a status indicator. Data belongs to this browser profile and origin. It does not automatically synchronize to another browser, computer, or the cloud. Clearing site data removes local catalogs. Save failures are surfaced. Keep downloaded backups in a PC folder. Restoring a backup on another computer makes that workspace portable.
-
-## Included source data
-
-- PDF: `NOVA TRADING USA CORP CATALOG (1).pdf`, 91 pages. Extracted 1,410 distinct 7-digit item codes, 1,408 product images, multilingual descriptions, pack specifications, and 12-digit barcode text.
-- Six source categories: Philippines, Thailand, Korean, Vietnam, Chinese, Malaysia. The source spelling “Philppines” was normalized to Philippines; repeated header text was deduplicated.
-- Two records have no detected embedded image: 8168200 (page 40) and 8176401 (page 47). They remain editable products with image placeholders.
-- Excel: `stdrptProductsPrint (2).xls`, headers on row 3. Imported 1,031 records with both an item code and a name. Leading zeroes in textual item codes/UPCs are retained. Blank, footer, and unnamed rows are excluded.
-- These are different product lists. The application does not guess correspondences or attach Nova photos to unrelated Excel products.
-- PDF image extraction is a one-time preprocessing step for the supplied document. Arbitrary PDF-to-product import is not included. Future products come from Excel/CSV or manual entry.
-- Image extraction uses the reference document's grid coordinates. Product details should be reviewed before customer distribution. The source barcode digits are retained; output uses CODE128 to represent those digits without silently changing potentially invalid source UPC checksums.
-
-## Bundled image assets
-
-All 1,408 product images and the default logo are included losslessly in `source-assets/images-*.json`. The restore script verifies each image checksum and writes the original files to `public/`. It runs automatically on installation and whenever the app starts/builds. You can also run `pnpm assets:restore`. No external image server or download credentials are required. Generated image files are gitignored to avoid duplicating the bundled bytes.
-
-## Files
-
-- `app/page.tsx`: application UI, editing, import mapping, filtering, backup/restore.
-- `app/globals.css`: responsive workspace styling.
-- `lib/catalog.ts`: data types, defaults, merge behavior, image processing, IndexedDB.
-- `lib/pdf-export.ts`: page plan, category index, cover, cards, image rendering, PDF download.
-- `public/pdf-products.json`, `public/excel-products.json`, `public/products/`: extracted starter data/assets.
-- `docs/ARCHITECTURE.md`: system architecture, functional requirements, limits, and optional cloud roadmap.
-- `scripts/extract-sources.py`: reproducible extraction for the supplied source grid; adjust the input path for your PC. Requires Python, PyMuPDF, Pillow, xlrd. Not required to run the app.
-- `tests/catalog.test.ts`: merge, validation, and PDF index tests.
-
-## Verification
-
-Run `pnpm exec tsc --noEmit` and `node --experimental-strip-types --test tests/catalog.test.ts`.
-
-Browser QA was unavailable in the build environment. End-to-end Excel import, IndexedDB persistence, backup restore, image upload, and PDF downloads need a browser smoke test on your PC. Build/type checks and data/merge/index tests are run during delivery. For large catalogs PDF generation can take several minutes; the progress indicator reports the current page. Each page is rasterized independently, avoiding one giant canvas. PDF text is image-based, not selectable or tagged for accessibility. Font coverage for Chinese depends on the browser/OS fonts.
-
-## Repository and live app
-
-Source repository: https://github.com/CarlosMElliot/catalog-studio
-
-Current hosted app: https://nova-catalog-studio.notmethekingofmyownl.chatgpt.site
-
-This repository is public by the owner's instruction and includes the reference catalog's product images and the Excel starter's list prices and stock values. Personal browser workspace edits, uploaded user images, and profile settings are not automatically synchronized to this repository.
-
-The source uses Next.js conventions with the supplied Vinext/Cloudflare adapter. A GitHub push does not automatically update the existing hosted app. Deployment is a separate step. The included hosting manifest intentionally has no existing Site identity, so cloning this repository cannot overwrite the original Site by accident.
-
-For future work, start with `AGENTS.md`, this README, and `docs/ARCHITECTURE.md`. The included `public/` data files and images are required starter assets. Never commit passwords, API tokens, browser backups, or runtime credentials.
+Type checks, catalog tests and quota SQL checks have passed. Browser interaction, customer launch and real billing remain separate verification/integration work. See [Setup](docs/SETUP.md) before exposing this app on another host: its trusted identity adapter requires the Sites gateway or a replacement verified authentication implementation.
