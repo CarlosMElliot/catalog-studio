@@ -98,3 +98,13 @@ Large catalogs can take a few minutes because images and pages are processed ind
 PDF pages render at 300 DPI; CODE128 barcodes are drawn as vector bars and text so they remain sharp when zoomed or printed. Photo quality still depends on the original upload. Larger originals consume more storage. High-resolution exports take longer and create larger files.
 
 The standalone progress dialog offers **Cancel export** until final download preparation. Cancellation stops after the current page finishes, discards the partial PDF and keeps your catalog unchanged. Restart from export options or Try again. Keep the window open and avoid refresh while exporting. Once the browser download handoff starts, cancellation is unavailable. No pause/resume is provided.
+
+
+## Catalog style survey
+Open **Customer app → Brand & cover → Find your catalog style**. The ten-question survey covers industry, audience, goal, range size, layout, required fields, photos, typography, palette and viewing format. Back/Next preserves current answers; Close without applying leaves the saved design intact. Applying a recommendation saves the answers and design with that catalog, including cloud recovery and backups. Reopen to review or retake it.
+
+Three recommendations offer cover, product and index previews using existing products. Customize layout, fonts, palette and Letter/A4 before applying. Six implemented PDF layouts: four-card showcase, nine-card balanced, sixteen-card wholesale, one-product editorial, three wide technical panels, and mixed (one hero page per category followed by nine-card grids). Specifications/benefits use the existing description field; this does not add variant, MOQ, discount or comparison-table data models. Technical panels are not automatic specification comparison tables. Layout thumbnails are illustrative, not exact PDF proofs.
+
+Five Google Fonts pairings are requested from Google Fonts; installed fallback fonts are used if those resources are unavailable. The app waits for selected fonts before export. Five palette presets plus the existing brand color are available. App UI themes remain independent of PDF design. Larger layouts preserve high-resolution rendering, vector barcodes and export cancellation. Source photos determine actual image detail.
+
+Implementation: `lib/catalog-style.ts` defines questions, validated settings and deterministic recommendations; `features/customer/components/catalog-style-survey.tsx` presents the survey and previews; `lib/pdf-export.ts` implements designs. No external AI or paid template service is used. Recommendation tests, persistence validation and mixed-layout pagination tests live in `tests/catalog-style.test.ts`. Browser visual verification remains outstanding.

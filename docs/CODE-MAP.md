@@ -36,3 +36,13 @@ D1/R2 bindings and auth environment values are server-only. Keep `CATALOG_ADMIN_
 The public GitHub repository is the portable source distribution. The ChatGPT Site is a separate deployed environment. A GitHub commit alone does not publish it. Preserve both route entry points when syncing. The portable hosting manifest declares DB/BUCKET without copying the existing Site project ID. Secrets, account records, backups and generated local state must never be copied to GitHub.
 
 When producing a future release, run the checks in SETUP.md, review migration history, then publish the matching build. Keep billing-unconnected messaging until payment collection and signed webhook verification actually exist.
+
+
+## Catalog style survey
+Open **Customer app → Brand & cover → Find your catalog style**. The ten-question survey covers industry, audience, goal, range size, layout, required fields, photos, typography, palette and viewing format. Back/Next preserves current answers; Close without applying leaves the saved design intact. Applying a recommendation saves the answers and design with that catalog, including cloud recovery and backups. Reopen to review or retake it.
+
+Three recommendations offer cover, product and index previews using existing products. Customize layout, fonts, palette and Letter/A4 before applying. Six implemented PDF layouts: four-card showcase, nine-card balanced, sixteen-card wholesale, one-product editorial, three wide technical panels, and mixed (one hero page per category followed by nine-card grids). Specifications/benefits use the existing description field; this does not add variant, MOQ, discount or comparison-table data models. Technical panels are not automatic specification comparison tables. Layout thumbnails are illustrative, not exact PDF proofs.
+
+Five Google Fonts pairings are requested from Google Fonts; installed fallback fonts are used if those resources are unavailable. The app waits for selected fonts before export. Five palette presets plus the existing brand color are available. App UI themes remain independent of PDF design. Larger layouts preserve high-resolution rendering, vector barcodes and export cancellation. Source photos determine actual image detail.
+
+Implementation: `lib/catalog-style.ts` defines questions, validated settings and deterministic recommendations; `features/customer/components/catalog-style-survey.tsx` presents the survey and previews; `lib/pdf-export.ts` implements designs. No external AI or paid template service is used. Recommendation tests, persistence validation and mixed-layout pagination tests live in `tests/catalog-style.test.ts`. Browser visual verification remains outstanding.
