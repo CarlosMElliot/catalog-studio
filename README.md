@@ -91,3 +91,16 @@ Three recommendations offer cover, product and index previews using existing pro
 Five Google Fonts pairings are requested from Google Fonts; installed fallback fonts are used if those resources are unavailable. The app waits for selected fonts before export. Five palette presets plus the existing brand color are available. App UI themes remain independent of PDF design. Larger layouts preserve high-resolution rendering, vector barcodes and export cancellation. Source photos determine actual image detail.
 
 Implementation: `lib/catalog-style.ts` defines questions, validated settings and deterministic recommendations; `features/customer/components/catalog-style-survey.tsx` presents the survey and previews; `lib/pdf-export.ts` implements designs. No external AI or paid template service is used. Recommendation tests, persistence validation and mixed-layout pagination tests live in `tests/catalog-style.test.ts`. Browser visual verification remains outstanding.
+
+
+
+## Automatic catalog setup: expanded survey
+New catalog actions now open a 20-question setup survey with the catalog name in the same dialog. Applying a design creates a new empty catalog and returns to Products; cancelling creates nothing. There is no visual page editor. Import products, upload/match images, and export from the existing workflow.
+
+The original ten questions are followed by explicit choices for barcode source, photo placement, description length, cover, contents, product sorting, tags/dietary notes, contact details, missing-code handling, and reuse of branding. Existing ten-answer catalogs remain valid and can reopen the expanded questionnaire. Settings are saved with each catalog and included in backups.
+
+Eight layout engines include the original six plus a four-dish restaurant menu and four-card café showcase. Every layout uses `lib/pdf-card.ts` and supports optional vector CODE128 barcodes. Users choose UPC/barcode field, SKU, or no barcode; missing UPC behavior is omit, SKU fallback or stop with a product-specific error. Choosing SKU does not assign or validate retail UPCs and never changes stored product identifiers. Barcode source and missing-code rules apply to PDF exports; the product library continues to display the actual UPC/barcode field.
+
+Menu rows reserve room for optional barcodes and use aligned prices. Product photos can sit above/beside details or be omitted. Brief descriptions explicitly use the first 180 characters with an ellipsis; full saved text remains unchanged. Dietary notes use user-entered tags and are never inferred. Cover/contents choices load with the catalog; normal export options can override page inclusion for an export. Sort choices operate on a copy of products. Hidden contact settings remove contact data from PDF cover/footer/index. Blank-branding choice applies only when creating a new catalog.
+
+Overflow is reported rather than clipping or overlapping barcode areas. Physical barcode scanning and browser visual verification have not been completed. Tests cover every layout’s barcode markup, source selection, missing-code rules, leading zeros, description behavior and legacy answers. Restaurant positioning can be further refined from user-supplied PDF/image references; none are required to complete setup.

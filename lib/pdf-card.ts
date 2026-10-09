@@ -1,0 +1,14 @@
+import type {Product} from './catalog.ts';
+import {barcodeValue,descriptionText,type CatalogStyle} from './catalog-style.ts';
+export const escapePdfText=(s:unknown)=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
+/** Every layout uses this renderer; barcode generation is never layout-specific. */
+export function productCard(p:Product,options:{style?:CatalogStyle;visible:string[];count:number;color:string;heading:string}){
+ const {style,visible,count,color,heading}=options;const esc=escapePdfText;const has=(s:string)=>visible.includes(s);const menu=style?.layout==='menu';
+ const height=menu?212:count===16?212:count===9?284:count===4?420:count===3?284:860;
+ const beside=style?.imagePosition==='beside';const photoHeight=menu?70:count===16?62:count===9?112:count===4?225:count===3?130:490;
+ const code=has('upc')?barcodeValue(p,style):'';
+ const photo=has('image')&&style?.imagePosition!=='none'?`<div style="height:${photoHeight}px;${beside?'width:35%;':''}display:flex;align-items:center;justify-content:center;margin-bottom:5px;flex-shrink:0">${p.image?`<img src="${esc(p.image)}" style="max-width:100%;height:100%;object-fit:contain"/>`:'<span style="font-size:9px;color:#68736e">Image not provided</span>'}</div>`:'';
+ const price=has('price')&&p.price!==''?`<strong style="white-space:nowrap">$${Number(p.price).toFixed(2)}</strong>`:'';
+ const description=has('description')?descriptionText(p.description,style):'';
+ return `<div data-product-card style="border:${menu?'0':'1px solid #dbe4df'};border-bottom:1px solid #dbe4df;border-radius:5px;padding:10px;display:flex;flex-direction:column;height:${height}px;overflow:hidden;background:#fff;color:#233b34"><div style="display:flex;flex-direction:${beside?'row':'column'};gap:${beside?'10':'0'}px;flex:1;min-height:0">${photo}<div style="flex:1;min-width:0">${has('sku')?`<div style="font-size:9px;font-weight:bold;margin:3px 0">${esc(p.sku)}</div>`:''}<div style="display:flex;justify-content:space-between;gap:10px;font-size:${menu?18:count===16?9:count===1?28:14}px;font-weight:bold;font-family:'${heading}',Georgia,serif;line-height:1.3;overflow-wrap:anywhere"><span>${esc(p.name)}</span>${menu?price:''}</div>${description?`<div style="font-size:${menu?11:9}px;line-height:1.3;margin:4px 0;color:#52645c">${esc(description)}</div>`:''}<div style="font-size:9px;line-height:1.5;margin-top:4px">${has('pack')&&p.pack?`<div>Pack: ${esc(p.pack)}</div>`:''}${has('brand')&&p.brand?`<div>${esc(p.brand)}</div>`:''}${!menu&&price?`<div>Price: ${price}</div>`:''}${has('stock')&&p.stock!==''?`<div>Stock: ${esc(p.stock)}</div>`:''}${has('tags')&&p.tags?`<div>${esc(p.tags)}</div>`:''}</div></div></div>${code?`<div style="padding-top:5px;flex-shrink:0"><div data-pdf-barcode="${esc(code)}" style="height:39px;width:100%;flex-shrink:0"></div></div>`:''}</div>`;
+}
