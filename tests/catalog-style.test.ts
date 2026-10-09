@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {recommendStyles,validStyle,questions} from '../lib/catalog-style.ts';
+import {recommendStyles,validStyle,questions,compatibleCatalogStyle} from '../lib/catalog-style.ts';
 import {pagePlan} from '../lib/pdf-export.ts';
 import {blankProduct,validateCatalogs,brandDefault} from '../lib/catalog.ts';
 test('survey has ten questions and produces valid persisted designs without losing codes',()=>{
@@ -21,4 +21,11 @@ test('mixed layout reserves a hero page per category and index offsets stay corr
  const plan=pagePlan(products,9,true,true,true);
  assert.deepEqual(plan.pages.map(p=>p.products.length),[1,9,1,1]);
  assert.deepEqual(plan.entries.map(e=>e.page),[3,5]);assert.equal(plan.total,6);
+});
+
+test('catalogs from the reverted editor retain data with a supported design',()=>{
+ const old={layout:'menu',font:2,palette:6,format:'letter',fields:['image','price','tags'],answers:[[6],[0],[0],[0],[6],[0],[0],[0],[9],[0]]};
+ const mapped=compatibleCatalogStyle(old);assert.ok(validStyle(mapped));assert.equal(mapped.layout,'balanced');assert.equal(old.layout,'menu');
+ const current=recommendStyles([[0],[0],[0],[0],[0],[0],[0],[0],[0],[0]])[0].style;
+ assert.equal(compatibleCatalogStyle(current),current);
 });
