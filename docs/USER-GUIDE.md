@@ -87,3 +87,7 @@ git push -u origin main
 
 Do not commit personal workspace backups or secret keys. The bundled starter product catalog is included in the source; choose the repository's visibility accordingly. A GitHub repository or Supabase project has not been created on your behalf.
 
+
+## PDF generation progress
+
+The export dialog shows a progress bar, current stage and completed/total pages (including the cover and index). Progress advances when each page finishes; the final stage prepares the browser download. Export settings and the close button are disabled during generation to avoid interrupting the job. Errors stay inside the dialog with a Retry PDF export button. Completion stays visible until you close the dialog. “Download requested” means the PDF was handed to the browser; check its Downloads list or save dialog for the file.
