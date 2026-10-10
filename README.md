@@ -84,7 +84,7 @@ Type checks, catalog tests and quota SQL checks have passed. Browser interaction
 
 
 ## Catalog style survey
-Open **Customer app → Brand & cover → Find your catalog style**. The ten-question survey covers industry, audience, goal, range size, layout, required fields, photos, typography, palette and viewing format. Back/Next preserves current answers; Close without applying leaves the saved design intact. Applying a recommendation saves the answers and design with that catalog, including cloud recovery and backups. Reopen to review or retake it.
+Open **Customer app → Brand & cover → Find your catalog style**. The ten-question survey covers industry, audience, goal, range size, layout, required fields, photos, typography, palette and viewing format. Back/Next preserves current answers; Close without applying leaves the saved design intact. Saving choices preserves the answers and design with that catalog, including cloud recovery and backups. Reopen to review or change choices.
 
 Three recommendations offer cover, product and index previews using existing products. Customize layout, fonts, palette and Letter/A4 before applying. Six implemented PDF layouts: four-card showcase, nine-card balanced, sixteen-card wholesale, one-product editorial, three wide technical panels, and mixed (one hero page per category followed by nine-card grids). Specifications/benefits use the existing description field; this does not add variant, MOQ, discount or comparison-table data models. Technical panels are not automatic specification comparison tables. Layout thumbnails are illustrative, not exact PDF proofs.
 
@@ -95,9 +95,9 @@ Implementation: `lib/catalog-style.ts` defines questions, validated settings and
 
 
 ## Automatic catalog setup: expanded survey
-New catalog actions now open a 20-question setup survey with the catalog name in the same dialog. Applying a design creates a new empty catalog and returns to Products; cancelling creates nothing. There is no visual page editor. Import products, upload/match images, and export from the existing workflow.
+New catalog actions now open a five-question setup survey with the catalog name in the same dialog. Applying a design creates a new empty catalog and returns to Products; cancelling creates nothing. There is no visual page editor. Import products, upload/match images, and export from the existing workflow.
 
-The original ten questions are followed by explicit choices for barcode source, photo placement, description length, cover, contents, product sorting, tags/dietary notes, contact details, missing-code handling, and reuse of branding. Existing ten-answer catalogs remain valid and can reopen the expanded questionnaire. Settings are saved with each catalog and included in backups.
+Legacy saved answers retain explicit choices for barcode source, photo placement, description length, cover, contents, product sorting, tags/dietary notes, contact details, missing-code handling, and reuse of branding. Existing ten-answer catalogs remain valid and can reopen the expanded questionnaire. Settings are saved with each catalog and included in backups.
 
 Eight layout engines include the original six plus a four-dish restaurant menu and four-card café showcase. Every layout uses `lib/pdf-card.ts` and supports optional vector CODE128 barcodes. Users choose UPC/barcode field, SKU, or no barcode; missing UPC behavior is omit, SKU fallback or stop with a product-specific error. Choosing SKU does not assign or validate retail UPCs and never changes stored product identifiers. Barcode source and missing-code rules apply to PDF exports; the product library continues to display the actual UPC/barcode field.
 

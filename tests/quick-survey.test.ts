@@ -1,0 +1,7 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {quickQuestions,quickDefaults,quickBusiness,quickPurpose,quickLayout,quickBarcode} from '../lib/quick-survey.ts';
+import {validStyle,recommendStyles,expandedAnswers} from '../lib/catalog-style.ts';
+test('five-question setup supplies valid defaults for the optional settings',()=>{const s=quickDefaults();assert.equal(quickQuestions.length,5);assert.ok(validStyle(s));assert.equal(s.cover,true);assert.equal(s.index,true);assert.equal(s.descriptionMode,'brief');for(let b=0;b<7;b++)assert.ok(validStyle(quickBusiness(s,b)));});
+test('reopening an older design preserves its fields, typography and barcode choices',()=>{const old=recommendStyles([[1],[0],[0],[0],[3],[0,2],[0],[2],[3],[1]])[0].style;const reopened=quickDefaults(old);assert.deepEqual(reopened.fields,old.fields);assert.equal(reopened.font,old.font);assert.equal(reopened.format,old.format);assert.equal(reopened.layout,old.layout);assert.ok(validStyle(reopened));});
+test('quick choices remain valid and turning barcodes off and on is explicit',()=>{const initial=quickDefaults();const s=quickLayout(quickPurpose(quickBusiness(initial,2),3),'beauty-editorial');const off=quickBarcode(s,'none');assert.ok(!off.fields.includes('upc'));const on=quickBarcode(off,'sku');assert.equal(on.barcodeSource,'sku');assert.equal(on.fields.filter(f=>f==='upc').length,1);assert.ok(validStyle({...on,answers:expandedAnswers(on)}));assert.equal(initial.layout,'wholesale-range');});

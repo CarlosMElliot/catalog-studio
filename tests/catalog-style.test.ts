@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {recommendStyles,validStyle,questions,compatibleCatalogStyle} from '../lib/catalog-style.ts';
 import {pagePlan} from '../lib/pdf-export.ts';
 import {blankProduct,validateCatalogs,brandDefault} from '../lib/catalog.ts';
-test('survey has twenty questions and produces valid persisted designs without losing codes',()=>{
+test('legacy twenty-answer schema produces valid persisted designs without losing codes',()=>{
  const answers=[[0],[1],[0],[3],[2],[0,1,3],[0],[5],[0],[0]];
  const recommendations=recommendStyles(answers);assert.equal(questions.length,20);assert.equal(recommendations.length,3);
  for(const r of recommendations)assert.ok(validStyle(r.style));
