@@ -1,10 +1,10 @@
 import {collectionLayouts} from './collection-layouts.ts';
 import {wholesaleLayouts} from './wholesale-layouts.ts';
 export const layouts=[{id:'showcase',name:'Product showcase',count:4,description:'Four large product cards per page.'},{id:'balanced',name:'Balanced grid',count:9,description:'Nine products with photos and essential details.'},{id:'wholesale',name:'Wholesale grid',count:16,description:'Sixteen compact cards for quick ordering.'},{id:'editorial',name:'Editorial lookbook',count:1,description:'One hero product per page with room for its story.'},{id:'technical',name:'Technical catalog',count:3,description:'Three wide product panels with detailed descriptions.'},{id:'mixed',name:'Mixed layout',count:9,description:'A hero product opens each category, followed by nine-card grids.'},{id:'menu',name:'Restaurant menu',count:4,description:'Four dishes with aligned prices, optional photos and barcodes.'},{id:'cafe',name:'Café / food showcase',count:4,description:'Four large dish photos with descriptions and optional barcodes.'},...wholesaleLayouts,...collectionLayouts] as const;
-export const fonts=[{name:'Clean & practical',heading:'Roboto',body:'Open Sans'},{name:'Modern & bold',heading:'Montserrat',body:'Open Sans'},{name:'Elegant & editorial',heading:'Playfair Display',body:'Lato'},{name:'Friendly & contemporary',heading:'Poppins',body:'Open Sans'},{name:'Traditional & professional',heading:'Libre Baskerville',body:'Source Sans 3'}];
+export const fonts=[{name:'Clean & practical',heading:'Roboto',body:'Open Sans'},{name:'Modern & bold',heading:'Montserrat',body:'Open Sans'},{name:'Elegant & editorial',heading:'Playfair Display',body:'Lato'},{name:'Friendly & contemporary',heading:'Poppins',body:'Open Sans'},{name:'Traditional & professional',heading:'Libre Baskerville',body:'Source Sans 3'},{name:'Wholesale & ordering',heading:'Roboto Condensed',body:'Open Sans'},{name:'Fashion editorial',heading:'Bodoni Moda',body:'Lato'},{name:'Bridal & luxury',heading:'Cormorant Garamond',body:'Lato'},{name:'Beauty & personal care',heading:'DM Sans',body:'Open Sans'},{name:'Restaurant & home',heading:'Lora',body:'Source Sans 3'},{name:'Promotional headlines',heading:'Oswald',body:'Open Sans'},{name:'Technical & specifications',heading:'IBM Plex Sans',body:'Source Sans 3'}];
 export const palettes=[{name:'Navy & teal',ink:'#17324D',paper:'#FFFFFF',accent:'#167D8D'},{name:'Forest & cream',ink:'#214E34',paper:'#FAF7EF',accent:'#B85C38'},{name:'Charcoal & gold',ink:'#202124',paper:'#FAF7F0',accent:'#B18A45'},{name:'Burgundy & blush',ink:'#752D43',paper:'#FFF9F2',accent:'#752D43'},{name:'Industrial orange',ink:'#252B33',paper:'#FFFFFF',accent:'#C75016'}];
 export type StyleAnswers=number[][];
-export type CatalogStyle={barcodeSource?:'upc'|'sku'|'none';missingBarcode?:'omit'|'sku'|'block';imagePosition?:'above'|'beside'|'none';descriptionMode?:'full'|'brief'|'none';cover?:boolean;index?:boolean;contacts?:boolean;sort?:'original'|'category'|'name';inheritBrand?:boolean;answers:StyleAnswers;layout:string;font:number;palette:number;format:'letter'|'a4';fields:string[]};
+export type CatalogStyle={fontMode?:'auto'|'manual';barcodeSource?:'upc'|'sku'|'none';missingBarcode?:'omit'|'sku'|'block';imagePosition?:'above'|'beside'|'none';descriptionMode?:'full'|'brief'|'none';cover?:boolean;index?:boolean;contacts?:boolean;sort?:'original'|'category'|'name';inheritBrand?:boolean;answers:StyleAnswers;layout:string;font:number;palette:number;format:'letter'|'a4';fields:string[]};
 export const questions=[
  ['What type of business is this catalog for?',['Wholesale, distribution or grocery','Fashion, clothing or accessories','Beauty, wellness or personal care','Furniture or home décor','Electronics, tools, automotive or industrial','Another industry / mixed products','Restaurant, café or food service']],
  ['Who will mainly use your catalog?',['Retail shoppers','Businesses placing wholesale orders','Sales representatives','Professional buyers comparing specifications','A mixture of audiences']],
@@ -13,7 +13,7 @@ export const questions=[
  ['Which layout do you prefer?',layouts.map(l=>l.name)],
  ['What information must appear? Select all that apply.',['Product name and image','Item code and barcode','Price','Pack size and stock availability','Specifications / dimensions in the description','Description, benefits and contact details']],
  ['What photos do you have?',['High-resolution product photos','High-resolution lifestyle photos','Both product and lifestyle photos','Mostly small or older images','Some products have no images']],
- ['Which font style matches your brand?',[...fonts.map(f=>f.name+' — '+f.heading+' / '+f.body),'Choose for me']],
+ ['Which font style matches your brand?',[...fonts.slice(0,5).map(f=>f.name+' — '+f.heading+' / '+f.body),'Choose for me']],
  ['Which color direction would you like?',[...palettes.map(p=>p.name),'Use my existing brand color']],
  ['How will customers mainly view it?',['Printed Letter PDF','Printed A4 PDF','Computer or tablet','Phone / messaging / email','Both print and digital']],
  ['Should products include scannable barcodes?',['Yes — use each product’s UPC / barcode field','Yes — generate from each item code (SKU)','No — hide barcodes in this catalog']],
@@ -29,7 +29,7 @@ export const questions=[
 
 ] as const;
 export function validStyle(s:any):s is CatalogStyle{return !!s&&optionalSettingsValid(s)&&layouts.some(l=>l.id===s.layout)&&Number.isInteger(s.font)&&s.font>=0&&s.font<fonts.length&&Number.isInteger(s.palette)&&s.palette>=0&&s.palette<=5&&['letter','a4'].includes(s.format)&&Array.isArray(s.fields)&&s.fields.every((f:any)=>['image','sku','upc','price','pack','stock','description','brand','tags'].includes(f))&&Array.isArray(s.answers)&&[10,questions.length].includes(s.answers.length)&&s.answers.every((v:any,i:number)=>Array.isArray(v)&&v.length>0&&(i===5||v.length===1)&&v.every((n:any)=>Number.isInteger(n)&&n>=0&&n<questions[i][1].length));}
-export function optionalSettingsValid(s:any){return Object.entries({barcodeSource:['upc','sku','none'],missingBarcode:['omit','sku','block'],imagePosition:['above','beside','none'],descriptionMode:['full','brief','none'],sort:['original','category','name']}).every(([k,v])=>s[k]===undefined||v.includes(s[k]))&&['cover','index','contacts','inheritBrand'].every(k=>s[k]===undefined||typeof s[k]==='boolean');}
+export function optionalSettingsValid(s:any){return Object.entries({fontMode:['auto','manual'],barcodeSource:['upc','sku','none'],missingBarcode:['omit','sku','block'],imagePosition:['above','beside','none'],descriptionMode:['full','brief','none'],sort:['original','category','name']}).every(([k,v])=>s[k]===undefined||v.includes(s[k]))&&['cover','index','contacts','inheritBrand'].every(k=>s[k]===undefined||typeof s[k]==='boolean');}
 export function expandedAnswers(style?:CatalogStyle):StyleAnswers{
  if(!style)return Array.from({length:questions.length},()=>[]);
  const initial=style?.answers?.map(a=>[...a])||Array.from({length:10},()=>[]);
@@ -78,3 +78,11 @@ export function businessLayouts(business:number,purpose=0){
  return groups[business]||groups[5];
 }
 export function surveySteps(answers:StyleAnswers,creating:boolean){return questions.map((_,i)=>i).filter(i=>!(i===18&&answers[10]?.[0]===2)&&!(i===19&&!creating));}
+
+/** Catalog typography only: never changes the application theme. */
+export function recommendedFont(business:number,layout:string){
+ const template:Record<string,number>={'weekly-featured':10,'weekend-deals':10,'wholesale-range':5,'seasonal-fashion':6,'bold-fashion':1,'warm-lookbook':9,'minimal-collection':8,'bridal-elegance':7,'menswear-edit':1,'aqua-skincare':8,'beauty-editorial':2,'care-collection':7,'menu':9,'cafe':3,'technical':11};
+ return template[layout]??[5,6,8,9,11,0,9][business]??0;
+}
+export function resolvedFontIndex(style?:CatalogStyle){return style?.fontMode==='auto'?recommendedFont(style.answers[0]?.[0]??5,style.layout):style?.font??0;}
+export function catalogFont(style?:CatalogStyle){return fonts[resolvedFontIndex(style)]||fonts[0];}
