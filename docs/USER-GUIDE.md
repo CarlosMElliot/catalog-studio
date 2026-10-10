@@ -120,3 +120,9 @@ Eight layout engines include the original six plus a four-dish restaurant menu a
 Menu rows reserve room for optional barcodes and use aligned prices. Product photos can sit above/beside details or be omitted. Brief descriptions explicitly use the first 180 characters with an ellipsis; full saved text remains unchanged. Dietary notes use user-entered tags and are never inferred. Cover/contents choices load with the catalog; normal export options can override page inclusion for an export. Sort choices operate on a copy of products. Hidden contact settings remove contact data from PDF cover/footer/index. Blank-branding choice applies only when creating a new catalog.
 
 Overflow is reported rather than clipping or overlapping barcode areas. Physical barcode scanning and browser visual verification have not been completed. Tests cover every layout’s barcode markup, source selection, missing-code rules, leading zeros, description behavior and legacy answers. Restaurant positioning can be further refined from user-supplied PDF/image references; none are required to complete setup.
+
+## Focused setup screens
+
+The five setup questions remain. Optional settings opens a separate screen with Fonts, Colors, Pages, Product details and Branding. Only the selected area appears, and Done returns to the current setup question without discarding draft choices. The catalog preview also has its own screen. Create catalog / Save choices still commits the draft; closing setup discards it.
+
+Design choices are browsed three at a time, with all standard and industry layouts available through Browse all designs. Font cards are browsed four at a time and still show actual typefaces. Previous/Next only changes the visible choices, never the selection. No layout, font, field, barcode rule, page preference or branding option was removed.
