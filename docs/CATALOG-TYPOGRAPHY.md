@@ -37,3 +37,7 @@ Old catalogs retain their saved numeric font selection, because it may have been
 ## Loading and verification
 
 Google Fonts provides the CSS and font files over HTTPS. Export waits for regular and bold heading/body faces, and reports a loading error rather than quietly substituting another font. Wholesale headings no longer force Arial. All 15 font families and 30 normal-weight font resources were successfully downloaded during verification. Automated tests cover mapping, old saved choices, manual overrides, per-template preview resolution and wholesale output. Browser visual QA and physical scanning were not performed.
+
+## Visual font selection
+
+Optional settings uses selectable font cards instead of a native font dropdown. Each card renders the family name, heading example, accented words, price and digits in the actual font files. Cards stay in a loading state until the required faces load; failed previews are labeled unavailable and cannot be selected. Automatic and manual choices remain keyboard-accessible native radio controls with a selected indicator.
